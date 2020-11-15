@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -44,7 +45,6 @@ class AuthService with ChangeNotifier {
     );
 
     this.autenticando = false;
-    print(resp.body);
     if (resp.statusCode == 200) {
       final loginResponse = loginResponseFromJson(resp.body);
       this.usuario = loginResponse.usuario;
@@ -68,7 +68,6 @@ class AuthService with ChangeNotifier {
       body: jsonEncode(data),
       headers: {'Content-Type': 'application/json'},
     );
-    print(resp.body);
     this.autenticando = false;
     if (resp.statusCode == 200) {
       final loginResponse = loginResponseFromJson(resp.body);
@@ -82,16 +81,16 @@ class AuthService with ChangeNotifier {
   }
 
   Future<bool> isLoggedIn() async {
-    final token = await this._storage.read(key: 'token');
-
-    // print(token);
+    String token = await this._storage.read(key: 'token');
+    print('TOKEN:   $token');
+    if (token == null) {
+      token = '';
+    }
     final resp = await http.get(
       '${Environment.apiUrl}/login/renew',
       headers: {'Content-Type': 'application/json', 'x-token': token},
     );
-    print(resp.statusCode);
 
-    // this.autenticando = false;
     if (resp.statusCode == 200) {
       final loginResponse = loginResponseFromJson(resp.body);
       this.usuario = loginResponse.usuario;
